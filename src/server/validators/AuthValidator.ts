@@ -1,8 +1,18 @@
-
 import { AppError } from "../errors/AppError";
 
+export interface RegisterDto {
+    email: string;
+    password?: string;
+    name?: string;
+}
+
+export interface LoginDto {
+    email: string;
+    password?: string;
+}
+
 export class AuthValidator {
-    validateRegister(data: any): void {
+    validateRegister(data: RegisterDto): void {
         const { email, password, name } = data;
         if (!email || !email.includes('@')) {
             throw new AppError("Invalid email address", 400);
@@ -15,7 +25,7 @@ export class AuthValidator {
         }
     }
 
-    validateLogin(data: any): void {
+    validateLogin(data: LoginDto): void {
         const { email, password } = data;
         if (!email || !password) {
             throw new AppError("Email and password are required", 400);

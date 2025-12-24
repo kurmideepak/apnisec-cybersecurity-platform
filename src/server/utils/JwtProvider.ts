@@ -1,5 +1,4 @@
-
-import jwt, { SignOptions } from 'jsonwebtoken';
+import jwt, { SignOptions, JwtPayload } from 'jsonwebtoken';
 
 export class JwtProvider {
     private readonly secret: string;
@@ -10,17 +9,18 @@ export class JwtProvider {
         this.expiresIn = '1d';
     }
 
-    sign(payload: object, options?: SignOptions): string {
-        return jwt.sign(payload, this.secret, {
-            expiresIn: this.expiresIn,
+    sign(payload: JwtPayload, options?: SignOptions): string {
+        const signOptions: SignOptions = {
+            expiresIn: this.expiresIn as SignOptions['expiresIn'],
             ...options,
-        });
+        };
+        return jwt.sign(payload, this.secret, signOptions);
     }
 
     verify<T>(token: string): T {
         try {
             return jwt.verify(token, this.secret) as T;
-        } catch (error) {
+        } catch (_error) {
             throw new Error('Invalid token');
         }
     }
