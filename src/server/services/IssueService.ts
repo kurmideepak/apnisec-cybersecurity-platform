@@ -6,13 +6,15 @@ import { Issue } from '@prisma/client';
 import { IEmailService } from './interfaces/IEmailService';
 
 
+import { CreateIssueDto, UpdateIssueDto, IssueType } from '../validators/IssueValidator';
+
 export class IssueService implements IIssueService {
     constructor(
         private issueRepository: IIssueRepository,
         private emailService: IEmailService
     ) { }
 
-    async list(type?: string): Promise<Issue[]> {
+    async list(type?: IssueType): Promise<Issue[]> {
         const filter = type ? { type } : undefined;
         return this.issueRepository.findAll(filter);
     }
@@ -25,7 +27,7 @@ export class IssueService implements IIssueService {
         return issue;
     }
 
-    async create(userId: string, data: any): Promise<Issue> {
+    async create(userId: string, data: CreateIssueDto): Promise<Issue> {
         const issue = await this.issueRepository.create({
             ...data,
             user: { connect: { id: userId } }
@@ -46,7 +48,7 @@ export class IssueService implements IIssueService {
         return issue;
     }
 
-    async update(id: string, userId: string, data: any): Promise<Issue> {
+    async update(id: string, userId: string, data: UpdateIssueDto): Promise<Issue> {
         const issue = await this.get(id);
 
         if (issue.userId !== userId) {

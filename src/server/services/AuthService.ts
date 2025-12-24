@@ -7,6 +7,8 @@ import { AuthError } from '../errors/AuthError';
 import { User } from '@prisma/client';
 import { IEmailService } from './interfaces/IEmailService';
 
+import { RegisterDto, LoginDto, UpdateProfileDto } from '../validators/AuthValidator';
+
 export class AuthService implements IAuthService {
     constructor(
         private userRepository: IUserRepository,
@@ -15,15 +17,17 @@ export class AuthService implements IAuthService {
         private emailService: IEmailService
     ) { }
 
-    async register(data: any): Promise<{ user: User; token: string }> {
+    async register(data: RegisterDto): Promise<{ user: User; token: string }> {
         const existingUser = await this.userRepository.findByEmail(data.email);
         if (existingUser) {
             throw new AuthError('User already exists', 400);
         }
 
-        const hashedPassword = await this.hashProvider.hash(data.password);
+        const hashedPassword = await this.hashProvider.hash(data.password!);
+
         const user = await this.userRepository.create({
-            ...data,
+            email: data.email,
+            name: data.name!,
             password: hashedPassword,
         });
 
@@ -34,13 +38,13 @@ export class AuthService implements IAuthService {
         return { user, token };
     }
 
-    async login(data: any): Promise<{ user: User; token: string }> {
+    async login(data: LoginDto): Promise<{ user: User; token: string }> {
         const user = await this.userRepository.findByEmail(data.email);
         if (!user) {
             throw AuthError.invalidCredentials();
         }
 
-        const isPasswordValid = await this.hashProvider.compare(data.password, user.password);
+        const isPasswordValid = await this.hashProvider.compare(data.password!, user.password);
         if (!isPasswordValid) {
             throw AuthError.invalidCredentials();
         }
@@ -54,7 +58,8 @@ export class AuthService implements IAuthService {
         return user;
     }
 
-    async updateProfile(userId: string, data: any): Promise<User> {
+    async updateProfile(userId: string, data: UpdateProfileDto): Promise<User> {
+        // data has optional fields. Repository update usually takes partial.
         const user = await this.userRepository.update(userId, data);
 
         // Trigger Profile Updated Email
