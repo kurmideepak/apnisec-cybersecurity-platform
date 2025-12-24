@@ -20,7 +20,7 @@ export class JwtProvider {
     verify<T>(token: string): T {
         try {
             return jwt.verify(token, this.secret) as T;
-        } catch (_error) {
+        } catch {
             throw new Error('Invalid token');
         }
     }

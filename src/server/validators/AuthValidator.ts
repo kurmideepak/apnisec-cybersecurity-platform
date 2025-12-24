@@ -11,6 +11,11 @@ export interface LoginDto {
     password?: string;
 }
 
+export interface UpdateProfileDto {
+    name?: string;
+    email?: string;
+}
+
 export class AuthValidator {
     validateRegister(data: RegisterDto): void {
         const { email, password, name } = data;
