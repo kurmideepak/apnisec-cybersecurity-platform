@@ -1,14 +1,13 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { JwtProvider } from '../utils/JwtProvider';
-import { AppError } from '../errors/AppError';
 
-type AuthenticatedHandler = (req: NextRequest, userId: string, ...args: any[]) => Promise<NextResponse>;
+type AuthenticatedHandler = (req: NextRequest, userId: string, ...args: unknown[]) => Promise<NextResponse>;
 
 export class AuthMiddleware {
     constructor(private jwtProvider: JwtProvider) { }
 
-    async execute(req: NextRequest, next: AuthenticatedHandler, ...args: any[]): Promise<NextResponse> {
+    async execute(req: NextRequest, next: AuthenticatedHandler, ...args: unknown[]): Promise<NextResponse> {
         try {
             const token = req.cookies.get('token')?.value;
             if (!token) {

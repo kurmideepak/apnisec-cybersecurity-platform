@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { IAuthService } from '../services/interfaces/IAuthService';
 import { AuthValidator } from '../validators/AuthValidator';
 import { JwtProvider } from '../utils/JwtProvider';
+import { AppError } from '../errors/AppError';
 
 export class AuthHandler {
     constructor(
@@ -28,10 +29,12 @@ export class AuthHandler {
             });
 
             return response;
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'An unexpected error occurred';
+            const statusCode = error instanceof AppError ? error.statusCode : 500;
             return NextResponse.json(
-                { error: error.message },
-                { status: error.statusCode || 500 }
+                { error: message },
+                { status: statusCode }
             );
         }
     }
@@ -52,10 +55,12 @@ export class AuthHandler {
             });
 
             return response;
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'An unexpected error occurred';
+            const statusCode = error instanceof AppError ? error.statusCode : 500;
             return NextResponse.json(
-                { error: error.message },
-                { status: error.statusCode || 500 }
+                { error: message },
+                { status: statusCode }
             );
         }
     }
@@ -81,7 +86,7 @@ export class AuthHandler {
             }
 
             return NextResponse.json(user, { status: 200 });
-        } catch (error: any) {
+        } catch (error: unknown) {
             return NextResponse.json(
                 { error: 'Invalid token' },
                 { status: 401 }
@@ -94,8 +99,13 @@ export class AuthHandler {
             const body = await req.json();
             const user = await this.authService.updateProfile(userId, body);
             return NextResponse.json(user);
-        } catch (error: any) {
-            return NextResponse.json({ error: error.message }, { status: error.statusCode || 500 });
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'An unexpected error occurred';
+            const statusCode = error instanceof AppError ? error.statusCode : 500;
+            return NextResponse.json(
+                { error: message },
+                { status: statusCode }
+            );
         }
     }
 }

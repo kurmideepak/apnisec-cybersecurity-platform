@@ -1,14 +1,13 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { RateLimitService } from '../services/RateLimitService';
-import { AppError } from '../errors/AppError';
 
-type HandlerFunction = (req: NextRequest, ...args: any[]) => Promise<NextResponse>;
+type HandlerFunction = (req: NextRequest, ...args: unknown[]) => Promise<NextResponse>;
 
 export class RateLimitMiddleware {
     constructor(private rateLimitService: RateLimitService) { }
 
-    public async execute(req: NextRequest, next: HandlerFunction, context?: any): Promise<NextResponse> {
+    public async execute(req: NextRequest, next: HandlerFunction, context?: unknown): Promise<NextResponse> {
         const ip = req.headers.get('x-forwarded-for') || 'unknown-ip';
         // You could also use userId if authenticated, e.g. from a previous auth step
 

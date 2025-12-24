@@ -1,7 +1,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { IIssueService } from '../services/interfaces/IIssueService';
-import { IssueValidator } from '../validators/IssueValidator';
+import { IssueValidator, IssueType } from '../validators/IssueValidator';
+import { AppError } from '../errors/AppError';
 
 
 export class IssueHandler {
@@ -13,12 +14,19 @@ export class IssueHandler {
     async list(req: NextRequest): Promise<NextResponse> {
         try {
             const { searchParams } = new URL(req.url);
-            const type = searchParams.get('type') || undefined;
+            const typeParam = searchParams.get('type');
+
+            let type: IssueType | undefined = undefined;
+            if (typeParam && Object.values(IssueType).includes(typeParam as IssueType)) {
+                type = typeParam as IssueType;
+            }
 
             const issues = await this.issueService.list(type);
             return NextResponse.json(issues);
-        } catch (error: any) {
-            return NextResponse.json({ error: error.message }, { status: error.statusCode || 500 });
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'An error occurred';
+            const statusCode = error instanceof AppError ? error.statusCode : 500;
+            return NextResponse.json({ error: message }, { status: statusCode });
         }
     }
 
@@ -29,8 +37,10 @@ export class IssueHandler {
 
             const issue = await this.issueService.create(userId, body);
             return NextResponse.json(issue, { status: 201 });
-        } catch (error: any) {
-            return NextResponse.json({ error: error.message }, { status: error.statusCode || 500 });
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'An error occurred';
+            const statusCode = error instanceof AppError ? error.statusCode : 500;
+            return NextResponse.json({ error: message }, { status: statusCode });
         }
     }
 
@@ -38,8 +48,10 @@ export class IssueHandler {
         try {
             const issue = await this.issueService.get(id);
             return NextResponse.json(issue);
-        } catch (error: any) {
-            return NextResponse.json({ error: error.message }, { status: error.statusCode || 500 });
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'An error occurred';
+            const statusCode = error instanceof AppError ? error.statusCode : 500;
+            return NextResponse.json({ error: message }, { status: statusCode });
         }
     }
 
@@ -50,8 +62,10 @@ export class IssueHandler {
 
             const issue = await this.issueService.update(id, userId, body);
             return NextResponse.json(issue);
-        } catch (error: any) {
-            return NextResponse.json({ error: error.message }, { status: error.statusCode || 500 });
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'An error occurred';
+            const statusCode = error instanceof AppError ? error.statusCode : 500;
+            return NextResponse.json({ error: message }, { status: statusCode });
         }
     }
 
@@ -59,8 +73,10 @@ export class IssueHandler {
         try {
             await this.issueService.delete(id, userId);
             return new NextResponse(null, { status: 204 });
-        } catch (error: any) {
-            return NextResponse.json({ error: error.message }, { status: error.statusCode || 500 });
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'An error occurred';
+            const statusCode = error instanceof AppError ? error.statusCode : 500;
+            return NextResponse.json({ error: message }, { status: statusCode });
         }
     }
 }

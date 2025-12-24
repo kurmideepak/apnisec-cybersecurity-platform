@@ -45,7 +45,7 @@ class Container {
         const issueRepository = new IssueRepository(this.prisma);
         const issueValidator = new IssueValidator();
         // Pass EmailService to IssueService
-        const issueService = new IssueService(issueRepository, this.emailService);
+        const issueService = new IssueService(issueRepository, userRepository, this.emailService);
 
         this.issueHandler = new IssueHandler(issueService, issueValidator);
 

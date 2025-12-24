@@ -8,9 +8,12 @@ import { IEmailService } from './interfaces/IEmailService';
 
 import { CreateIssueDto, UpdateIssueDto, IssueType } from '../validators/IssueValidator';
 
+import { IUserRepository } from '../repositories/interfaces/IUserRepository';
+
 export class IssueService implements IIssueService {
     constructor(
         private issueRepository: IIssueRepository,
+        private userRepository: IUserRepository,
         private emailService: IEmailService
     ) { }
 
@@ -33,10 +36,9 @@ export class IssueService implements IIssueService {
             user: { connect: { id: userId } }
         });
 
-        const issueWithUser = await this.issueRepository.findById(issue.id);
+        const user = await this.userRepository.findById(userId);
 
-        if (issueWithUser && (issueWithUser as any).user) {
-            const user = (issueWithUser as any).user;
+        if (user) {
             await this.emailService.sendIssueCreatedEmail(
                 user.email,
                 user.name,

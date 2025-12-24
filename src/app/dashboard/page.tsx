@@ -9,7 +9,6 @@ import {
     PlusIcon,
     TrashIcon,
     FunnelIcon,
-    CheckCircleIcon,
     ExclamationTriangleIcon,
     CloudIcon,
     ShieldCheckIcon,
@@ -112,8 +111,9 @@ export default function DashboardPage() {
 
             setNewIssue({ title: '', description: '', type: 'CLOUD_SECURITY', priority: 'medium', status: 'open' });
             fetchIssues(filterType === 'ALL' ? undefined : filterType);
-        } catch (err: any) {
-            setCreationError(err.message);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'An error occurred';
+            setCreationError(message);
         } finally {
             setIsCreating(false);
         }
